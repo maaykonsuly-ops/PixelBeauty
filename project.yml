@@ -1,0 +1,30 @@
+name: PixelBeauty
+options:
+  bundleIdPrefix: com.maycon
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  PixelBeauty:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: PixelBeauty
+        excludes:
+          - "Resources/Info.plist"
+    info:
+      path: PixelBeauty/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: "PixelBeauty"
+        CFBundleIdentifier: "com.maycon.PixelBeauty"
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.maycon.PixelBeauty
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGN_IDENTITY: ""

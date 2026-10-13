@@ -1,0 +1,69 @@
+name: Build Unsigned IPA for AltStore
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: Build & Package iOS IPA
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Print Environment Diagnostic
+        run: |
+          echo "=== macOS Environment Diagnostic ==="
+          sw_vers
+          xcodebuild -version
+          swift --version
+
+      - name: Install XcodeGen
+        run: |
+          echo "Installing XcodeGen via Homebrew..."
+          brew install xcodegen
+          xcodegen --version
+
+      - name: Generate Xcode Project
+        run: |
+          echo "Generating .xcodeproj from project.yml..."
+          xcodegen generate
+          ls -la PixelBeauty.xcodeproj
+
+      - name: Build Archive (Unsigned for Sideloading)
+        run: |
+          echo "Compiling Release Archive with xcodebuild..."
+          xcodebuild archive \
+            -project PixelBeauty.xcodeproj \
+            -scheme PixelBeauty \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath build/PixelBeauty.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS=""
+
+      - name: Package IPA (AltStore / Sideloadly Compatible)
+        run: |
+          echo "Packaging application bundle into IPA format..."
+          mkdir -p build/Payload
+          cp -R build/PixelBeauty.xcarchive/Products/Applications/PixelBeauty.app build/Payload/
+          cd build
+          zip -qr PixelBeauty.ipa Payload
+          echo "=== IPA Generated Successfully ==="
+          ls -lh PixelBeauty.ipa
+          shasum -a 256 PixelBeauty.ipa
+          cd ..
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PixelBeauty-Unsigned-IPA
+          path: build/PixelBeauty.ipa
+          if-no-files-found: error
+          retention-days: 90

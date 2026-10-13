@@ -1,0 +1,12 @@
+# Xcode
+build/
+*.xcodeproj
+*.xcworkspace
+*.xcuserdatad
+DerivedData/
+.DS_Store
+
+# Artifacts
+*.ipa
+*.zip
+Payload/
