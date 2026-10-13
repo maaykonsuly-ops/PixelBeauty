@@ -40,25 +40,32 @@ jobs:
           xcodegen generate
           ls -la PixelBeauty.xcodeproj
 
-      - name: Build Archive (Unsigned for Sideloading)
+      - name: Build Application Bundle (Unsigned for Sideloading)
         run: |
-          echo "Compiling Release Archive with xcodebuild..."
-          xcodebuild archive \
+          echo "Compiling Release Build with xcodebuild..."
+          xcodebuild build \
             -project PixelBeauty.xcodeproj \
             -scheme PixelBeauty \
             -configuration Release \
             -destination "generic/platform=iOS" \
-            -archivePath build/PixelBeauty.xcarchive \
+            -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGN_ENTITLEMENTS=""
+            AD_HOC_CODE_SIGNING_ALLOWED=YES
 
       - name: Package IPA (AltStore / Sideloadly Compatible)
         run: |
           echo "Packaging application bundle into IPA format..."
+          APP_PATH=$(find build/DerivedData -name "PixelBeauty.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: PixelBeauty.app not found!"
+            find build/DerivedData -name "*.app"
+            exit 1
+          fi
+          echo "Found compiled app at: $APP_PATH"
           mkdir -p build/Payload
-          cp -R build/PixelBeauty.xcarchive/Products/Applications/PixelBeauty.app build/Payload/
+          cp -R "$APP_PATH" build/Payload/
           cd build
           zip -qr PixelBeauty.ipa Payload
           echo "=== IPA Generated Successfully ==="
