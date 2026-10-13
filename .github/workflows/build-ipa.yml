@@ -43,16 +43,18 @@ jobs:
       - name: Build Application Bundle (Unsigned for Sideloading)
         run: |
           echo "Compiling Release Build with xcodebuild..."
+          set -o pipefail
           xcodebuild build \
             -project PixelBeauty.xcodeproj \
             -scheme PixelBeauty \
             -configuration Release \
+            -sdk iphoneos \
             -destination "generic/platform=iOS" \
             -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            AD_HOC_CODE_SIGNING_ALLOWED=YES
+            AD_HOC_CODE_SIGNING_ALLOWED=YES 2>&1 | tee xcodebuild.log || (echo "=== COMPILATION FAILED - COMPILER ERRORS ===" && grep -C 3 -E "error:|fatal error:" xcodebuild.log && exit 1)
 
       - name: Package IPA (AltStore / Sideloadly Compatible)
         run: |

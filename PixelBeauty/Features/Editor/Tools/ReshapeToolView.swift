@@ -34,7 +34,7 @@ struct ReshapeToolView: View {
                 )
 
                 SliderRow(
-                    icon: "nose",
+                    icon: "triangle",
                     label: "Afinar Nariz",
                     value: Binding(
                         get: { Double(vm.reshapeParams.slimNose) },

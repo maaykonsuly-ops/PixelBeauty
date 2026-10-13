@@ -27,7 +27,7 @@ struct HomeView: View {
                 }
             }
         }
-        .onChange(of: selectedItem) { _, newItem in
+        .onChange(of: selectedItem) { newItem in
             Task {
                 if let data = try? await newItem?.loadTransferable(type: Data.self),
                    let img = UIImage(data: data) {
