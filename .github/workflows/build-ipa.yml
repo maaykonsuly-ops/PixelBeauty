@@ -8,17 +8,23 @@ on:
 jobs:
   build:
     name: Build & Package iOS IPA
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 30
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Print Environment Diagnostic
+      - name: Select Xcode 16
         run: |
-          echo "=== macOS Environment Diagnostic ==="
-          sw_vers
+          echo "=== Selecting Xcode 16 ==="
+          XCODE_APP=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1)
+          if [ -n "$XCODE_APP" ]; then
+            echo "Found Xcode 16 at $XCODE_APP"
+            sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          else
+            echo "Using default Xcode selection"
+          fi
           xcodebuild -version
           swift --version
 
